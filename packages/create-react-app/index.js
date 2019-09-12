@@ -40,6 +40,7 @@ var currentNodeVersion = process.versions.node;
 var semver = currentNodeVersion.split('.');
 var major = semver[0];
 
+//要求node版本大于8
 if (major < 8) {
   console.error(
     'You are running Node ' +

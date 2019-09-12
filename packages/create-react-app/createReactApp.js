@@ -143,6 +143,8 @@ if (program.info) {
     .then(console.log);
 }
 
+//检查是否传入项目名
+//chalk.cyan以蓝绿色输出log
 if (typeof projectName === 'undefined') {
   console.error('Please specify the project directory:');
   console.log(
@@ -158,6 +160,7 @@ if (typeof projectName === 'undefined') {
   process.exit(1);
 }
 
+//输出验证错误的信息
 function printValidationResults(results) {
   if (typeof results !== 'undefined') {
     results.forEach(error => {
@@ -166,6 +169,7 @@ function printValidationResults(results) {
   }
 }
 
+//隐藏的调试参数
 const hiddenProgram = new commander.Command()
   .option(
     '--internal-testing-template <path-to-template>',
@@ -193,11 +197,16 @@ function createApp(
   useTypescript,
   template
 ) {
+  //获取项目的根目录
   const root = path.resolve(name);
+  //获取项目名
+  //path.basename()返回path的最后一部分
   const appName = path.basename(root);
-
+  
   checkAppName(appName);
+  //确认目录是否被创建 没有就创建新的目录
   fs.ensureDirSync(name);
+  //判断新建这个文件夹是否安全
   if (!isSafeToCreateProjectIn(root, name)) {
     process.exit(1);
   }
@@ -205,6 +214,7 @@ function createApp(
   console.log(`Creating a new React app in ${chalk.green(root)}.`);
   console.log();
 
+  //在新建文件夹写入packcage.json
   const packageJson = {
     name: appName,
     version: '0.1.0',
@@ -214,7 +224,7 @@ function createApp(
     path.join(root, 'package.json'),
     JSON.stringify(packageJson, null, 2) + os.EOL
   );
-
+  
   const useYarn = useNpm ? false : shouldUseYarn();
   const originalDirectory = process.cwd();
   process.chdir(root);
@@ -371,6 +381,9 @@ function install(root, useYarn, usePnp, dependencies, verbose, isOnline) {
   });
 }
 
+//@originalDirectory：cra的地址
+//@root：新建项目的地址
+//@appName：新建项目名
 function run(
   root,
   appName,
@@ -382,7 +395,9 @@ function run(
   usePnp,
   useTypescript
 ) {
+  //获取要安装的package 默认情况下是react-script 也可能是根据参数安装其它package
   getInstallPackage(version, originalDirectory).then(packageToInstall => {
+    //安装Recat依赖
     const allDependencies = ['react', 'react-dom', packageToInstall];
     if (useTypescript) {
       allDependencies.push(
@@ -395,7 +410,7 @@ function run(
         'typescript'
       );
     }
-
+    debugger
     console.log('Installing packages. This might take a couple of minutes.');
     getPackageName(packageToInstall)
       .then(packageName =>
@@ -499,6 +514,7 @@ function run(
 }
 
 function getInstallPackage(version, originalDirectory) {
+  debugger
   let packageToInstall = 'react-scripts';
   const validSemver = semver.valid(version);
   if (validSemver) {
@@ -710,6 +726,7 @@ function checkNodeVersion(packageName) {
   }
 }
 
+//检查项目名合法性
 function checkAppName(appName) {
   const validationResult = validateProjectName(appName);
   if (!validationResult.validForNewPackages) {
@@ -718,6 +735,7 @@ function checkAppName(appName) {
         `"${appName}"`
       )} because of npm naming restrictions:`
     );
+    debugger
     printValidationResults(validationResult.errors);
     printValidationResults(validationResult.warnings);
     process.exit(1);
@@ -739,6 +757,7 @@ function checkAppName(appName) {
     process.exit(1);
   }
 }
+
 
 function makeCaretRange(dependencies, name) {
   const version = dependencies[name];
